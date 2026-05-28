@@ -4,6 +4,10 @@
 
 **복잡한 물리를 쉽게 이해하는 인터랙티브 시뮬레이터**
 
+> 📌 **기반 프로젝트**: [bogyungkim89/kineticmotion](https://github.com/bogyungkim89/kineticmotion) - Streamlit 버전
+> 
+> 이 프로젝트는 원본의 운동학 시뮬레이션 개념을 바탕으로 **학생들이 더 쉽게 이해할 수 있도록** 재구성한 웹 버전입니다.
+
 ---
 
 ## 🎯 프로젝트 소개
@@ -152,10 +156,42 @@ MIT License - 자유롭게 사용, 수정, 배포할 수 있습니다.
 
 ---
 
-## 🤝 기여
+## 📚 Reference & Acknowledgments
 
-버그 리포트, 기능 제안, 개선 사항은 언제든 환영합니다!
-Issues 또는 Pull Requests를 통해 도와주세요.
+### 원본 프로젝트
+- **[KineticMotion](https://github.com/bogyungkim89/kineticmotion)** by [@bogyungkim89](https://github.com/bogyungkim89)
+  - 원본: Streamlit 기반 운동학 시뮬레이터
+  - 라이선스: (원본 라이선스 참조)
+
+### 이 프로젝트의 개선사항
+
+원본 프로젝트를 기반으로 **학생들의 이해도를 높이기 위해** 다음과 같이 개선했습니다:
+
+#### 📖 설명 개선
+- ❌ 복잡한 기술 용어 제거
+- ✅ 중학생도 이해할 수 있는 쉬운 설명 추가
+- ✅ 각 개념에 대한 "💡 쉽게 이해하기" 섹션 추가
+- ✅ 실생활 예시로 개념 설명
+
+#### 🛠️ 기술 개선
+- **Streamlit** → **순수 HTML/CSS/JavaScript** 변환
+  - 별도 설치 불필요
+  - 모든 브라우저에서 즉시 실행 가능
+  
+- **GitHub Pages** 배포
+  - 링크만으로 바로 웹에서 접근 가능
+  - https://wooonc6.github.io/kinetic-motion-bk
+  
+- **모바일 반응형 디자인** 적용
+  - 스마트폰, 태블릿, 데스크톱 모두 지원
+
+#### 🎨 UI/UX 개선
+- 깔끔한 그래디언트 디자인
+- 직관적인 네비게이션
+- 실시간 값 표시
+- 더 나은 색상 대비
+
+---
 
 ---
 
