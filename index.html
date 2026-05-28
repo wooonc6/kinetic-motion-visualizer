@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쉽게 배우는 운동학</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+            min-width: 150px;
+        }
+
+        .nav-btn:hover {
+            background: #e9ecef;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+            border-bottom: 3px solid #764ba2;
+        }
+
+        .content {
+            padding: 40px;
+            min-height: 600px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .explanation {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .explanation h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .simulation-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .value-display {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .canvas-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 20px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .concept-box {
+            background: #e7f3ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .concept-box strong {
+            color: #667eea;
+        }
+
+        svg {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #f0f7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 쉽게 배우는 운동학</h1>
+            <p class="subtitle">움직이는 물체를 이해하는 가장 쉬운 방법</p>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" onclick="switchPage(0)">📍 위치, 속도, 가속도</button>
+            <button class="nav-btn" onclick="switchPage(1)">🎯 자유낙하</button>
+            <button class="nav-btn" onclick="switchPage(2)">🏹 포물선운동</button>
+            <button class="nav-btn" onclick="switchPage(3)">⭕ 원운동</button>
+        </nav>
+
+        <!-- Page 1: 위치, 속도, 가속도 -->
+        <div class="content">
+            <div class="page active" id="page0">
+                <h2>📍 위치, 속도, 가속도란?</h2>
+
+                <div class="explanation">
+                    <h3>💡 쉽게 이해하기</h3>
+                    <p>
+                        <strong>위치(Position)</strong> = 물체가 지금 어디에 있는가?<br>
+                        <strong>속도(Velocity)</strong> = 물체가 얼마나 빠르게 움직이는가?<br>
+                        <strong>가속도(Acceleration)</strong> = 속도가 얼마나 빠르게 변하는가?
+                    </p>
+                    <p style="margin-top: 15px;">
+                        쉽게 말해서:
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>위치 = 내 GPS 위치</li>
+                            <li>속도 = 자동차 속도계</li>
+                            <li>가속도 = 브레이크를 밟을 때 느껴지는 힘</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="simulation-box">
+                    <h3>🎮 직접 조종해보세요!</h3>
+                    
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="v0">초기 속도: <span class="value-display" id="v0Val">2.0</span> m/s</label>
+                            <input type="range" id="v0" min="-10" max="10" value="2" step="0.5" oninput="updatePage0()">
+                        </div>
+                        <div class="control-group">
+                            <label for="a0">가속도: <span class="value-display" id="a0Val">0.5</span> m/s²</label>
+                            <input type="range" id="a0" min="-5" max="5" value="0.5" step="0.5" oninput="updatePage0()">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button onclick="playAnimation(0)">▶️ 시작</button>
+                        <button onclick="pauseAnimation(0)">⏸️ 멈추기</button>
+                        <button onclick="resetAnimation(0)">🔄 처음부터</button>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="canvas0" width="800" height="500"></canvas>
+                    </div>
+
+                    <div class="info-box">
+                        현재 시간: <span id="time0">0.0</span>초 | 
+                        위치: <span id="pos0">0.0</span>m | 
+                        속도: <span id="vel0">0.0</span>m/s | 
+                        가속도: <span id="acc0">0.5</span>m/s²
+                    </div>
+
+                    <div class="concept-box">
+                        <strong>📌 그래프의 의미</strong><br>
+                        - 위치-시간 그래프의 기울기 = 속도<br>
+                        - 속도-시간 그래프의 기울기 = 가속도<br>
+                        - 속도가 증가하면 가속도는 양수(+)<br>
+                        - 속도가 감소하면 가속도는 음수(-)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: 자유낙하 -->
+            <div class="page" id="page1">
+                <h2>🎯 자유낙하운동</h2>
+
+                <div class="explanation">
+                    <h3>💡 자유낙하란?</h3>
+                    <p>
+                        물체를 높은 곳에서 그냥 떨어뜨릴 때, <strong>오직 중력만의 영향</strong>을 받으며 떨어지는 운동입니다.
+                    </p>
+                    <p style="margin-top: 15px;">
+                        <strong>핵심 포인트:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>가속도는 항상 같다 = 항상 9.8 m/s² 아래로</li>
+                            <li>시간이 지날수록 속도가 계속 증가한다</li>
+                            <li>떨어질수록 더 빨라진다</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="simulation-box">
+                    <h3>🎮 자유낙하를 직접 보세요!</h3>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="h1">초기 높이: <span class="value-display" id="h1Val">100</span> m</label>
+                            <input type="range" id="h1" min="10" max="200" value="100" step="10" oninput="updatePage1()">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button onclick="playAnimation(1)">▶️ 떨어뜨리기</button>
+                        <button onclick="pauseAnimation(1)">⏸️ 멈추기</button>
+                        <button onclick="resetAnimation(1)">🔄 처음부터</button>
+                    </div>
+
+                    <div class="grid">
+                        <div class="canvas-container">
+                            <h4>낙하 모습</h4>
+                            <canvas id="canvas1a" width="300" height="400"></canvas>
+                        </div>
+                        <div>
+                            <h4>속도 변화 그래프</h4>
+                            <div class="canvas-container">
+                                <canvas id="canvas1b" width="300" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        현재 높이: <span id="height1">100</span>m | 
+                        속도: <span id="vel1">0.0</span>m/s | 
+                        경과시간: <span id="time1">0.0</span>초
+                    </div>
+
+                    <div class="concept-box">
+                        <strong>📌 중요한 포인트</strong><br>
+                        지구에서는 모든 물체가 똑같은 속도로 가속된다! (9.8 m/s²)<br>
+                        무겁든 가볍든 상관없이 모두 같은 시간에 땅에 떨어진다!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: 포물선운동 -->
+            <div class="page" id="page2">
+                <h2>🏹 포물선운동</h2>
+
+                <div class="explanation">
+                    <h3>💡 포물선운동이란?</h3>
+                    <p>
+                        공을 수평으로 던지면 어떻게 될까요? 
+                        <strong>수평 방향</strong>으로는 일정하게 이동하고, 
+                        <strong>아래쪽</strong>으로는 자유낙하합니다!
+                    </p>
+                    <p style="margin-top: 15px;">
+                        이 두 운동이 함께 일어나서 <strong>포물선(곡선) 모양</strong>의 궤적이 나옵니다.
+                    </p>
+                    <p style="margin-top: 15px;">
+                        <strong>예시:</strong> 농구를 던질 때, 화살을 날릴 때, 대포알을 발사할 때!
+                    </p>
+                </div>
+
+                <div class="simulation-box">
+                    <h3>🎮 공을 던져보세요!</h3>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="vx2">수평 속도: <span class="value-display" id="vx2Val">15</span> m/s</label>
+                            <input type="range" id="vx2" min="5" max="30" value="15" step="2" oninput="updatePage2()">
+                        </div>
+                        <div class="control-group">
+                            <label for="h2">초기 높이: <span class="value-display" id="h2Val">50</span> m</label>
+                            <input type="range" id="h2" min="10" max="100" value="50" step="5" oninput="updatePage2()">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button onclick="playAnimation(2)">▶️ 던지기</button>
+                        <button onclick="pauseAnimation(2)">⏸️ 멈추기</button>
+                        <button onclick="resetAnimation(2)">🔄 처음부터</button>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="canvas2" width="800" height="500"></canvas>
+                    </div>
+
+                    <div class="info-box">
+                        수평 거리: <span id="distX2">0</span>m | 
+                        높이: <span id="distY2">0</span>m | 
+                        경과시간: <span id="time2">0.0</span>초
+                    </div>
+
+                    <div class="concept-box">
+                        <strong>📌 신기한 사실</strong><br>
+                        수평과 수직 운동은 <strong>독립적</strong>이다!<br>
+                        수평으로 던지는 속도를 높이면 더 멀리 간다<br>
+                        높이는 수평 속도와 관계없이 떨어지는 속도가 같다!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 4: 원운동 -->
+            <div class="page" id="page3">
+                <h2>⭕ 등속 원운동</h2>
+
+                <div class="explanation">
+                    <h3>💡 원운동이란?</h3>
+                    <p>
+                        물체가 원의 중심을 향해 계속 끌려가면서 빙글빙글 도는 운동입니다.
+                    </p>
+                    <p style="margin-top: 15px;">
+                        <strong>신기한 점:</strong> 
+                        물체는 항상 앞으로 가려고 하는데, 중심이 자꾸 끌어당기기 때문에 원을 그리게 됩니다!
+                    </p>
+                    <p style="margin-top: 15px;">
+                        <strong>예시:</strong> 회전목마, 팔걸이 돌리기, 행성의 공전!
+                    </p>
+                </div>
+
+                <div class="simulation-box">
+                    <h3>🎮 원을 따라 도는 공!</h3>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="speed3">회전 속도: <span class="value-display" id="speed3Val">1</span>x</label>
+                            <input type="range" id="speed3" min="0.5" max="3" value="1" step="0.5" oninput="updatePage3()">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button onclick="playAnimation(3)">▶️ 회전 시작</button>
+                        <button onclick="pauseAnimation(3)">⏸️ 멈추기</button>
+                        <button onclick="resetAnimation(3)">🔄 처음부터</button>
+                    </div>
+
+                    <div class="canvas-container">
+                        <canvas id="canvas3" width="600" height="600"></canvas>
+                    </div>
+
+                    <div class="info-box">
+                        회전 각도: <span id="angle3">0</span>° | 
+                        경과시간: <span id="time3">0.0</span>초
+                    </div>
+
+                    <div class="concept-box">
+                        <strong>📌 중요한 포인트</strong><br>
+                        - 빨간 화살표 = 속도 (항상 원의 접선 방향)<br>
+                        - 파란 화살표 = 가속도 (항상 원의 중심을 향함)<br>
+                        - 이 둘은 항상 직각(90°)을 이룬다!<br>
+                        - 속도는 변하지 않아도 가속도는 존재한다!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 애니메이션 상태 관리
+        const animations = {};
+        let charts = {};
+
+        function switchPage(pageNum) {
+            // 모든 페이지 숨기기
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+            // 선택한 페이지 보이기
+            document.getElementById(`page${pageNum}`).classList.add('active');
+            document.querySelectorAll('.nav-btn')[pageNum].classList.add('active');
+
+            // 애니메이션 초기화
+            resetAnimation(pageNum);
+
+            // 차트 크기 조정 (필요한 경우)
+            setTimeout(() => {
+                if (charts[`chart1b`]) charts[`chart1b`].resize();
+            }, 100);
+        }
+
+        // ==================== PAGE 0: 위치, 속도, 가속도 ====================
+        function updatePage0() {
+            const v0 = parseFloat(document.getElementById('v0').value);
+            const a = parseFloat(document.getElementById('a0').value);
+            
+            document.getElementById('v0Val').textContent = v0.toFixed(1);
+            document.getElementById('a0Val').textContent = a.toFixed(1);
+
+            resetAnimation(0);
+            drawPage0();
+        }
+
+        function drawPage0(t = 0) {
+            const canvas = document.getElementById('canvas0');
+            const ctx = canvas.getContext('2d');
+            const v0 = parseFloat(document.getElementById('v0').value);
+            const a = parseFloat(document.getElementById('a0').value);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 배경
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 격자
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+
+            // 좌표축
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 200);
+            ctx.lineTo(750, 200);
+            ctx.stroke();
+
+            // 축 라벨
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('위치 (m)', 400, 250);
+
+            // 물체 계산
+            const x = v0 * t + 0.5 * a * t * t;
+            const v = v0 + a * t;
+
+            // 스케일 (50px = 10m)
+            const scale = 50 / 10;
+            const xPixel = 400 + x * scale;
+
+            // 물체 그리기
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(xPixel, 200, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 속도 화살표
+            if (Math.abs(v) > 0.1) {
+                const arrowLen = Math.sign(v) * Math.min(Math.abs(v) * 5, 80);
+                drawArrow(ctx, xPixel, 200, xPixel + arrowLen, 200, '#00aa00', 3);
+                ctx.fillStyle = '#00aa00';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`v = ${v.toFixed(1)} m/s`, xPixel + 20, 180);
+            }
+
+            // 정보 업데이트
+            document.getElementById('time0').textContent = t.toFixed(1);
+            document.getElementById('pos0').textContent = x.toFixed(1);
+            document.getElementById('vel0').textContent = v.toFixed(1);
+        }
+
+        // ==================== PAGE 1: 자유낙하 ====================
+        function updatePage1() {
+            const h = parseFloat(document.getElementById('h1').value);
+            document.getElementById('h1Val').textContent = h.toFixed(0);
+            resetAnimation(1);
+            drawPage1();
+        }
+
+        function drawPage1(t = 0) {
+            const h0 = parseFloat(document.getElementById('h1').value);
+            const g = 9.8;
+
+            // 낙하 시뮬레이션
+            const y = h0 - 0.5 * g * t * t;
+            const v = g * t;
+
+            if (y < 0) {
+                document.getElementById('time1').textContent = (Math.sqrt(2 * h0 / g)).toFixed(1);
+                document.getElementById('height1').textContent = '0';
+                document.getElementById('vel1').textContent = (g * Math.sqrt(2 * h0 / g)).toFixed(1);
+            } else {
+                document.getElementById('time1').textContent = t.toFixed(2);
+                document.getElementById('height1').textContent = Math.max(0, y).toFixed(1);
+                document.getElementById('vel1').textContent = v.toFixed(1);
+            }
+
+            // Canvas 1a - 낙하 모습
+            const canvas1a = document.getElementById('canvas1a');
+            const ctx1a = canvas1a.getContext('2d');
+            ctx1a.clearRect(0, 0, canvas1a.width, canvas1a.height);
+            ctx1a.fillStyle = '#f8f9fa';
+            ctx1a.fillRect(0, 0, canvas1a.width, canvas1a.height);
+
+            // 지면
+            ctx1a.fillStyle = '#8B7355';
+            ctx1a.fillRect(0, 380, 300, 20);
+
+            // 스케일
+            const scale = 300 / (h0 + 20);
+            const yPixel = 30 + (h0 - Math.max(0, y)) * scale;
+
+            // 물체
+            ctx1a.fillStyle = '#667eea';
+            ctx1a.beginPath();
+            ctx1a.arc(150, yPixel, 12, 0, Math.PI * 2);
+            ctx1a.fill();
+
+            // 속도 라벨
+            ctx1a.fillStyle = '#667eea';
+            ctx1a.font = 'bold 12px Arial';
+            ctx1a.textAlign = 'center';
+            ctx1a.fillText(`v = ${Math.max(0, v).toFixed(1)} m/s`, 150, yPixel - 30);
+
+            // Canvas 1b - 그래프 (Chart.js)
+            if (!charts['chart1b']) {
+                const ctx1b = document.getElementById('canvas1b').getContext('2d');
+                charts['chart1b'] = new Chart(ctx1b, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: '속도 (m/s)',
+                            data: [],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.1,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: Math.max(50, g * Math.sqrt(2 * h0 / g) + 10)
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 그래프 업데이트
+            const maxT = Math.sqrt(2 * h0 / g);
+            const step = Math.max(1, Math.floor(maxT / 20));
+            const chart = charts['chart1b'];
+            
+            if (t > 0 && t % step < 0.1) {
+                const tRounded = (Math.floor(t / step) * step).toFixed(2);
+                const vVal = (g * parseFloat(tRounded)).toFixed(1);
+                chart.data.labels.push(tRounded);
+                chart.data.datasets[0].data.push(parseFloat(vVal));
+                if (chart.data.labels.length > 30) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
+                chart.update('none');
+            }
+        }
+
+        // ==================== PAGE 2: 포물선운동 ====================
+        function updatePage2() {
+            const vx = parseFloat(document.getElementById('vx2').value);
+            const h = parseFloat(document.getElementById('h2').value);
+            document.getElementById('vx2Val').textContent = vx.toFixed(0);
+            document.getElementById('h2Val').textContent = h.toFixed(0);
+            resetAnimation(2);
+            drawPage2();
+        }
+
+        function drawPage2(t = 0) {
+            const vx = parseFloat(document.getElementById('vx2').value);
+            const h0 = parseFloat(document.getElementById('h2').value);
+            const g = 9.8;
+
+            const x = vx * t;
+            const y = h0 - 0.5 * g * t * t;
+
+            document.getElementById('time2').textContent = t.toFixed(2);
+            document.getElementById('distX2').textContent = x.toFixed(1);
+            document.getElementById('distY2').textContent = Math.max(0, y).toFixed(1);
+
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#f0f7ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 격자
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // 지면
+            ctx.fillStyle = '#8B7355';
+            ctx.fillRect(0, 450, canvas.width, 50);
+
+            // 스케일
+            const scaleX = 700 / (vx * 10);
+            const scaleY = 400 / h0;
+            const xPixel = 50 + x * scaleX;
+            const yPixel = 50 + (h0 - Math.max(0, y)) * scaleY;
+
+            // 궤적
+            ctx.strokeStyle = 'rgba(102, 126, 234, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 50 + h0 * scaleY);
+            for (let ti = 0; ti <= t; ti += 0.05) {
+                const xi = vx * ti;
+                const yi = h0 - 0.5 * g * ti * ti;
+                const xp = 50 + xi * scaleX;
+                const yp = 50 + (h0 - Math.max(0, yi)) * scaleY;
+                ctx.lineTo(xp, yp);
+            }
+            ctx.stroke();
+
+            // 물체
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(xPixel, yPixel, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 화살표
+            if (Math.abs(vx) > 0.1) {
+                drawArrow(ctx, xPixel, yPixel, xPixel + 30, yPixel, '#00aa00', 2);
+            }
+        }
+
+        // ==================== PAGE 3: 원운동 ====================
+        function updatePage3() {
+            resetAnimation(3);
+            drawPage3();
+        }
+
+        function drawPage3(t = 0) {
+            const speed = parseFloat(document.getElementById('speed3').value);
+            const angle = (t * speed) % (2 * Math.PI);
+
+            document.getElementById('angle3').textContent = (angle * 180 / Math.PI).toFixed(0);
+            document.getElementById('time3').textContent = t.toFixed(2);
+
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#f0f7ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = 300;
+            const centerY = 300;
+            const radius = 120;
+
+            // 원 그리기
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 중심
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 물체 위치
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+
+            // 궤적
+            ctx.strokeStyle = 'rgba(102, 126, 234, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            // 물체
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 속도 벡터 (접선)
+            const vx = -Math.sin(angle) * 40;
+            const vy = Math.cos(angle) * 40;
+            drawArrow(ctx, x, y, x + vx, y + vy, '#00aa00', 3);
+            ctx.fillStyle = '#00aa00';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('v', x + vx + 10, y + vy - 10);
+
+            // 가속도 벡터 (중심향)
+            const ax = -Math.cos(angle) * 40;
+            const ay = -Math.sin(angle) * 40;
+            drawArrow(ctx, x, y, x + ax, y + ay, '#ff6b6b', 3);
+            ctx.fillStyle = '#ff6b6b';
+            ctx.fillText('a', x + ax - 15, y + ay + 10);
+        }
+
+        // ==================== 애니메이션 제어 ====================
+        function playAnimation(pageNum) {
+            if (animations[pageNum]) return;
+
+            let t = 0;
+            let lastTime = Date.now();
+            const drawFunctions = [drawPage0, drawPage1, drawPage2, drawPage3];
+            const maxTimes = [10, Math.sqrt(2 * 100 / 9.8), Math.sqrt(2 * 100 / 9.8), 10];
+
+            animations[pageNum] = setInterval(() => {
+                const now = Date.now();
+                const deltaTime = (now - lastTime) / 1000;
+                lastTime = now;
+
+                t += deltaTime;
+
+                if (pageNum === 1 || pageNum === 2) {
+                    const h = pageNum === 1 ? parseFloat(document.getElementById('h1').value) :
+                             parseFloat(document.getElementById('h2').value);
+                    const maxT = Math.sqrt(2 * h / 9.8);
+                    if (t > maxT) {
+                        clearInterval(animations[pageNum]);
+                        delete animations[pageNum];
+                        return;
+                    }
+                }
+
+                drawFunctions[pageNum](t);
+            }, 30);
+        }
+
+        function pauseAnimation(pageNum) {
+            if (animations[pageNum]) {
+                clearInterval(animations[pageNum]);
+                delete animations[pageNum];
+            }
+        }
+
+        function resetAnimation(pageNum) {
+            pauseAnimation(pageNum);
+            [drawPage0, drawPage1, drawPage2, drawPage3][pageNum](0);
+        }
+
+        // 화살표 그리기 헬퍼
+        function drawArrow(ctx, fromX, fromY, toX, toY, color, width) {
+            const headlen = 15;
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // 초기화
+        drawPage0();
+    </script>
+</body>
+</html>
