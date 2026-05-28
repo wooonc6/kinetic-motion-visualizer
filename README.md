@@ -5,6 +5,10 @@
 원본 프로젝트 [bogyungkim89/kineticmotion](https://github.com/bogyungkim89/kineticmotion)을 기반으로 하되, 그래프 구성과 물리 개념 표현 방식을 전면 재구성했습니다.
 
 ---
+## 페이지 바로가기
+https://wooonc6.github.io/kinetic-motion-visualizer/
+
+---
 
 ## 원본과 달라진 점
 
